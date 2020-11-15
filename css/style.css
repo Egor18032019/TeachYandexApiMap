@@ -1,0 +1,63 @@
+/* Общие стили. Каркас
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.content-box-component {
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.visually-hidden {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+
+  white-space: nowrap;
+
+  -webkit-clip-path: inset(100%);
+
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+.hidden {
+  display: none;
+}
+
+body {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  color: #353535;
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+
+  background-color: #f0f0ea;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+
+/* Карта
+     ========================================================================== */
+     .ymaps-2-1-77-controls__toolbar{
+       /* margin-top: 22px;  не могу поменять так как инлайно зашит */
+       background-color:olivedrab;
+       padding: 5px;
+     }
