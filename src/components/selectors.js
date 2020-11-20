@@ -1,10 +1,10 @@
 import NameSpace from "./name-space.js";
 
-const getPlacesNormilse = (state) => {
-  return state[NameSpace.DATA].placesNormilse;
+const getTown = (state) => {
+  return state[NameSpace.DATA].town;
 };
 
 
 export {
-  getPlacesNormilse
+  getTown
 };

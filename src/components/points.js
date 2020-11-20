@@ -1,5 +1,5 @@
 export default {
-  "Moscow": [{
+  "Москва": [{
     title: `Placemark 1`,
     descr: `Some description 1`,
     coords: [55.831909, 37.411969],
@@ -33,7 +33,7 @@ export default {
     coords: [59.793559, 30.435983],
   }
   ],
-  "Ekaterinburg": [{
+  "Екатеринбург": [{
     title: `Placemark 7`,
     descr: `Some description 7`,
     coords: [56.800584, 60.675638],

@@ -53,7 +53,13 @@ fieldset {
   border: 0;
 }
 
+.description {
+  display: flex;
+}
 
+.ad-form {
+  padding: 20px ;
+}
 /* Карта
      ========================================================================== */
      .ymaps-2-1-77-controls__toolbar{

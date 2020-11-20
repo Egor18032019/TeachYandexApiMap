@@ -1,57 +1,48 @@
 import React, {useState, useRef, useEffect} from "react";
+import PropTypes from "prop-types";
+
 import {
   YMaps, Map, SearchControl, Placemark, ListBox, ListBoxItem, ObjectManager, GeoObject,
-  Button, Circle, RouteEditor, RouteButton, Polyline, Rectangle, Polygon
+  Button, Circle, RouteEditor, Modal, RouteButton, MultiRoute, TrafficControl, Polyline, Rectangle, Polygon
 } from "react-yandex-maps";
 import POINTS from './points';
 
 import data from './data.js';
+import cities from './cities.js';
 
-// const myIcon = `img/avatars/user02.png`;,
-const defaultTown = `Moscow`;
-const mapState = {center: [55.750625, 37.626], zoom: 7};
-const cities = [
-  {
-    data: {content: `Moscow`},
-    options: {selectOnClick: false},
-    coords: [55.753559, 37.609218],
-  },
-  {
-    data: {content: `Saint-Petersburg`},
-    options: {selectOnClick: false},
-    coords: [59.93863, 30.31413],
-  },
-  {
-    data: {content: `Ekaterinburg`},
-    options: {selectOnClick: false},
-    coords: [56.50, 60.35],
-  },
-];
+const myIcon = `img/avatars/user02.png`;
 
 let interval = null;
 const error = `img/avatars/user02.png`;
 
-function MapYandex() {
+function MapYandex(props) {
+  const {city, handlerClickOnChoise} = props;
+  const searchRef = useRef(null);
   const [text, setText] = useState(null);
-  const [state, setState] = useState(mapState);
-  const [town, setTown] = useState(defaultTown);
+  const [town, setTown] = useState(city);
   const [show, setShow] = useState(true);
   const [noFlash, setNoFlash] = useState(null);
   const [flash, setflash] = useState(true);
   const [ymaps, setYmaps] = useState(null);
-  const [bounds, setBounds] = useState(null);
-  const routes = useRef();
-  const mapRef = useRef(null);
-  const searchRef = useRef(null);
+  const [map, setMap] = useState(null);
+  const [p, setP] = useState(null);
+
+
+  const getTown = cities.find((item) => {
+    return item.data.content === city;
+  });
+  const mapState = {center: getTown.coords, zoom: getTown.zoom};
+  const [state, setState] = useState(mapState);
 
   /**
    * при клике изменяет state - даёт город и координты города для отрисовки
-   * @param {array} city массив с данными
+   * @param {array} el обьект с данными
    */
-  const onItemClick = (city) => {
-    setState({center: city.coords, zoom: 7});
-    setTown(city.data.content);
-    console.log(state);
+  const onItemClick = (el) => {
+    setState({center: el.coords, zoom: el.zoom});
+    setTown(el.data.content);
+    handlerClickOnChoise(el.data.content);
+    console.log(`handlerClickOnChoise`);
   };
   const onButtonClick = () => {
     setNoFlash(`Press не мигающую кнопку`);
@@ -59,7 +50,6 @@ function MapYandex() {
   };
   const onFlashButtonClick = () => {
     setflash(!flash);
-    console.log(flash);
   };
   useEffect(() => {
     console.log(` Я слежу за noFlash`);
@@ -68,6 +58,10 @@ function MapYandex() {
   useEffect(() => {
     console.log(`Я слежу жа flashing button`);
   }, [flash]);
+
+  useEffect(() => {
+    setState(mapState);
+  }, [city]);
 
   const onFlashRef = (ref) => {
     if (ref !== null) {
@@ -89,49 +83,67 @@ function MapYandex() {
       clearInterval(interval);
     }
   };
-  const getRoute = () => {
-    console.log(RouteButton);
+  const addRoute = () => {
     console.log(state);
-
+    console.log(searchRef);
+    console.log(map);
+    console.log(ymaps);
+    console.log(searchRef);
   };
 
-  const getState = () => {
-    return state;
+  const handleApiAvaliable = (ymap) => {
+    setYmaps(ymap);
   };
 
   return (
     <div className="Map">
       <YMaps
-        enterprise
         query={{
           apikey: `8520df8a-dfd5-4276-af26-f0b4ed98dd6e`,
         }}>
         <div id="map-basics">
           {show &&
             <Map
+              state={state}
               width={500}
               height={500}
+              instanceRef={(ref) => {
+                setMap(ref);
+              }}
+
               modules={[
                 `geocode`,
               ]}
               onLoad={// Теперь вы можете использовать обратный вызов события onLoad для компонентов, чтобы получить доступ к экземпляру ymaps.
-                (ymaps) => console.log(ymaps)
+                (ymap) => handleApiAvaliable(ymap)
               }
-              state={state}
-            >
+              onClick={(e) => {
+                let coords = e.get(`coords`);
+                console.log(coords);
+              }} >
+              <div
+                open={false}>
+                <h2>Карта для тестов</h2>
+              </div>
               {/* строка поиска */}
               <SearchControl
+                state={`exli tut to tam malo)S`}
                 instanceRef={(ref) => {
-                  if (ref) {
-                    searchRef.current = ref;
-                  }
+                  setP(ref);
                 }}
                 options={{
                   // float: `right`,
                   provider: `yandex#search`,
                   size: `large`
                 }}
+                onClick={
+                  (e) => {
+                    console.log(`SearchControl`);
+                    console.log(p);
+                  }
+                }
               />
+
               {/* кластер точек */}
               <ObjectManager
                 options={{
@@ -145,6 +157,9 @@ function MapYandex() {
                   preset: `islands#greenClusterIcons`,
                 }}
                 features={data.features}
+                onMouseLeave={() =>{
+                  console.log(`onMouseEnter ObjectManager`);
+                }}
               />
               {/* Координаты точек которые отрисовываем(сделать для каждого города свои) */}
               {POINTS[town].map((point, index) => (
@@ -157,6 +172,12 @@ function MapYandex() {
                     balloonContent: `Белое всплывающие окошко с описанием`
                   }}
                   onClick={() => setText(`Test ${index}`)}
+                  onMouseEnter={() =>{
+                    console.log(`onMouseEnter`);
+                  } }
+                  onMouseLeave={() =>{
+                    console.log(`onMouseEnter`);
+                  }}
                   options={{
                     // The placemark's icon will stretch to fit its contents.
                     preset: `islands#blackStretchyIcon`,
@@ -203,29 +224,27 @@ function MapYandex() {
 
               {/* <RouteEditor /> */}
               {/* Выбор города */}
-              <ListBox data={{content: `Choose city`}}
+              <ListBox data={{content: `${props.city}       `}}// хз почему но без пробелов не меняет город
                 options={{float: `left`}}>
-                {cities.map((city) =>
+                {cities.map((el) =>
                   <ListBoxItem
-                    data={city.data}
-                    options={city.options}
-                    onClick={() => onItemClick(city)}
-                    key={city.data.content}
+                    data={el.data}
+                    options={el.options}
+                    onClick={() => onItemClick(el)}
+                    key={el.data.content}
                   />
                 )}
               </ListBox>
               {/* мигающая кнопка */}
-
               <Button
                 data={{content: `Не мигающая кнопка`}}
                 options={{size: `large`, maxWidth: `200px`}}
                 onClick={() => onButtonClick()}
               />
-
               <Button
                 data={{
                   // Setting the text and icon for a button.
-                  content: `Adaptive button`,
+                  content: `${props.city} + мигающая кнопка`,
                   // The icon is 16x16 pixels.
                   image: error,
                 }}
@@ -239,14 +258,23 @@ function MapYandex() {
               />
               <RouteButton
                 data={{
-                  arguments: `true`,
-                  content: `FF`,
-                  name: `aaa`
+                  image: myIcon,
+                  title: `титул`,
+                }}
+                options={{
+                  adjustMapMargin: true,
+                  floatIndex: 100,
+                  maxWidth: `55px`,
+                  size: `large`,
+                  position: {
+                    top: `80px`
+                  }
                 }}
               />
+
             </Map>
           } </div>
-        <button onClick={() => getRoute()}>Show route</button>
+        <button onClick={() => addRoute()}>Show route</button>
         {/* To destroy it, just unmount component */}
         <button onClick={() => setShow(!show)}>
           {show ? `Delete map` : `Show map`}
@@ -255,6 +283,9 @@ function MapYandex() {
     </div >
   );
 }
-
+MapYandex.propTypes = {
+  city: PropTypes.string.isRequired,
+  handlerClickOnChoise: PropTypes.func.isRequired
+};
 export default MapYandex;
 

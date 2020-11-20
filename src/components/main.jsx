@@ -1,31 +1,36 @@
-import React, {PureComponent, createRef} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
+
 import MapYandex from "./map.jsx";
+import AdFrom from "./ad-form.jsx";
 
 class Main extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.textRef = createRef();
-    this.onChange = this.onChange.bind(this);
   }
 
-  onChange() {
-    console.log(this.textRef.current.value);
-  }
 
   render() {
-    const {} = this.props;
+    const {town, handlerClickOnChoise} = this.props;
+    console.log(town + `main`);
+
     return (
       <div className="description ">
-        <MapYandex />
-
+        <MapYandex
+          city={town}
+          handlerClickOnChoise={handlerClickOnChoise} />
+        <AdFrom
+          handlerClickOnChoise={handlerClickOnChoise}
+          town={town}
+        />
       </div>
 
     );
   }
 }
 Main.propTypes = {
-
+  town: PropTypes.string.isRequired,
+  handlerClickOnChoise: PropTypes.func.isRequired,
 };
 export default Main;

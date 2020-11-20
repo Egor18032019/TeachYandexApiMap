@@ -10,11 +10,11 @@ import combineReducers from "./components/combineReducer.js";
 import {
   ActionCreator, Operation as UserOperation
 } from "./components/user-reducer.ts";
-import {setIdDataLoaded} from "./components/data-reducer.js";
+import {ActionCreator as ActionCreatorData} from "./components/data-reducer.js";
 import App from "./components/app.jsx";
 
 const onBadRequest = (err) => {
-  store.dispatch(setIdDataLoaded(false, err));
+  store.dispatch(ActionCreatorData.setIdDataLoaded(false, err));
 };
 const onUnauthorized = (status) => {
   store.dispatch(ActionCreator.setAuthStatus(status));

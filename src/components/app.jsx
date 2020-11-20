@@ -2,10 +2,11 @@ import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import {Switch, Route, BrowserRouter} from "react-router-dom";
 import {connect} from "react-redux";
+
 import Main from "./main.jsx";
 import Footer from "./footer.jsx";
-import {Operation} from "./data-reducer.js";
-import {getPlacesNormilse} from "./selectors.js";
+import {ActionCreator} from "./data-reducer.js";
+import {getTown} from "./selectors.js";
 
 class App extends PureComponent {
   constructor(props) {
@@ -13,12 +14,14 @@ class App extends PureComponent {
   }
 
   _renderApp() {
-    const { } = this.props;
+    const {town, handlerClickOnChoise} = this.props;
+    console.log(town);
 
     return (
       <main>
         <Main
-
+          handlerClickOnChoise={handlerClickOnChoise}
+          town={town}
         />
         <Footer />
       </main>
@@ -27,7 +30,7 @@ class App extends PureComponent {
 
 
   render() {
-    const { } = this.props;
+    const {town, handlerClickOnChoise} = this.props;
     return (
       <BrowserRouter>
         <Switch>
@@ -36,6 +39,8 @@ class App extends PureComponent {
           </Route>
           <Route exact path="/property">
             <Main
+              handlerClickOnChoise={handlerClickOnChoise}
+              town={town}
             />
           </Route>
           <Route exact path="/login">
@@ -47,22 +52,23 @@ class App extends PureComponent {
   }
 }
 
-const mapDispatchToTitle = (dispatch) => ({
-  getNewData(newDataObj) {
-    dispatch(Operation.postData(newDataObj));
+const mapDispatchToProps = (dispatch) => ({
+  handlerClickOnChoise(town) {
+    dispatch(ActionCreator.setTown(town));
   },
 });
 
 const mapStateToProps = (store) => {
   return {
-    places: getPlacesNormilse(store),
+    town: getTown(store),
 
   };
 };
 
 App.propTypes = {
-
+  handlerClickOnChoise: PropTypes.func.isRequired,
+  town: PropTypes.string.isRequired
 };
 
 export {App};
-export default connect(mapStateToProps, mapDispatchToTitle)(App); // первым стате а вторым диспатчеры
+export default connect(mapStateToProps, mapDispatchToProps)(App); // первым стате а вторым диспатчеры

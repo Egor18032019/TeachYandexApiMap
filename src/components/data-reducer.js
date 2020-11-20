@@ -4,7 +4,7 @@
 
 // Определяем действия(actions)
 const ActionType = {
-  NORMILISE_BASA: `NORMILISE_BASA`,
+  CHOISE_TOWN: `CHOISE_TOWN`,
   GET_SERVER_STATUS: `GET_SERVER_STATUS`,
 };
 
@@ -14,35 +14,24 @@ const initialState = {
   page: `mainPage`,
   isDataLoaded: false,
   isDataPost: false,
-  placesNormilse: {},
+  town: `Москва`,
   errorMessage: ``,
 };
 
 
 const dataReducer = (state = initialState, action) => {
   switch (action.type) {
-    case ActionType.NORMILISE_BASA:
+    case ActionType.CHOISE_TOWN:
       return Object.assign({}, state, {
-        page: `answerPage`,
-        placesNormilse: action.payload,
+        town: action.payload,
       });
   }
   return state;
 };
 
-
-const ActionActive = {
-  setValidationData: (newDataObj) => ({
-    type: ActionType.NORMILISE_BASA, // обязательно поле type
-    payload: newDataObj // именовать файл как город ?
-  })
-};
-
 // запрос на сервер
 const Operation = {
   postData: (places) => (dispatch, getState, api) => {
-    // TODO подумать о загруки именно по городам- тарифный план более дешевый
-    // return api.post(`/russia/${places.id}`, {})
     return api.post(`/check/`, {
       places
     })
@@ -53,38 +42,41 @@ const Operation = {
         }
       })
       .catch((err) => {
-        dispatch(ActionActive.setValidationData(places));
-        console.log(err);
+        throw err;
       });
   },
   loadData: (places) => (dispatch, getState, api) => {
-    return api.get(`/mistakes`)
+    return api.get(`/town`)
       .then((response) => {
         console.log(response);
-        dispatch(setIdDataLoaded(true, ``));
-        dispatch(ActionActive.setValidationData(places));
+        dispatch(ActionCreator.setIdDataLoaded(true, ``));
+        dispatch(ActionCreator.setTown(places));
         // тут добавить отображение ошибок или если все хорошо
       });
   },
 
 };
-/**
- * @param {status} status bool-ево значение.
- * @param {err} err ошибка.
- * @return{isDataLoaded} статус загрузки(позже за диспатчим его в загрузчик(по другому не придумал))
- */
-const setIdDataLoaded = (status, err) => {
-  return {
-    type: ActionType.GET_SERVER_STATUS,
-    isDataPost: status,
-    errorMessage: err
-  };
+
+const ActionCreator = {
+  setIdDataLoaded: (status, err) => {
+    return {
+      type: ActionType.GET_SERVER_STATUS,
+      isDataPost: status,
+      errorMessage: err
+    };
+  },
+  setTown: (town) => {
+    return {
+      type: ActionType.CHOISE_TOWN,
+      payload: town || ``
+    };
+  }
 };
+
 
 export {
   dataReducer,
-  setIdDataLoaded,
   ActionType,
-  ActionActive,
+  ActionCreator,
   Operation,
 };
