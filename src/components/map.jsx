@@ -106,7 +106,7 @@ function MapYandex(props) {
             <Map
               state={state}
               width={500}
-              height={500}
+              height={460}
               instanceRef={(ref) => {
                 setMap(ref);
               }}

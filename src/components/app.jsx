@@ -15,7 +15,6 @@ class App extends PureComponent {
 
   _renderApp() {
     const {town, handlerClickOnChoise} = this.props;
-    console.log(town);
 
     return (
       <main>

@@ -1,8 +1,7 @@
 import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 
-import MapYandex from "./map.jsx";
-import AdFrom from "./ad-form.jsx";
+import Count from "./count-map-list.jsx";
 
 class Main extends PureComponent {
 
@@ -16,14 +15,11 @@ class Main extends PureComponent {
     console.log(town + `main`);
 
     return (
-      <div className="description ">
-        <MapYandex
-          city={town}
-          handlerClickOnChoise={handlerClickOnChoise} />
-        <AdFrom
+      <div className="main">
+        <Count
           handlerClickOnChoise={handlerClickOnChoise}
-          town={town}
-        />
+          town={town} />
+
       </div>
 
     );

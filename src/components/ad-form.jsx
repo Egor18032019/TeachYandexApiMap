@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useMemo} from "react";
+import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
 
 const AdFrom = (props) => {
@@ -11,8 +11,10 @@ const AdFrom = (props) => {
 
   console.log(town + `Adform`);
 
+  const computed = useCallback(() => handlerClickOnChoise(city), [city]);
+
   useEffect(() => {
-    handlerClickOnChoise(city);
+    computed();
   }, [city]);
 
   return (
