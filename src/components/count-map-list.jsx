@@ -14,7 +14,7 @@ const Count = (props) => {
 
   const generateItemFromAPI = useCallback(
       (start) => {
-        console.log(`generateItemFromAPI: `);
+        console.log(`как рисовать маршурт то ?? `);
 
         return new Array(count)
         .fill(``)

@@ -2,20 +2,24 @@ import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
 
 const AdFrom = (props) => {
-  const {handlerClickOnChoise, town} = props;
+  const {onChangeTown, town} = props;
   const formRef = useRef(null);
   const titleRef = useRef(null);
   const cityRef = useRef(``);
   const [title, setTitleRef] = useState(town);
   const [city, setCityRef] = useState(town);
 
-  console.log(town + `Adform`);
+  console.log(town + ` Adform`);
 
-  const computed = useCallback(() => handlerClickOnChoise(city), [city]);
+  const computed = useCallback(() => onChangeTown(city), [city]);
 
   useEffect(() => {
     computed();
   }, [city]);
+
+  useEffect(() => {
+    setTitleRef(town);
+  }, [town]);
 
   return (
     <form className={`ad-form`} method="post" encType="multipart/form-data"
@@ -51,7 +55,7 @@ const AdFrom = (props) => {
 };
 
 AdFrom.propTypes = {
-  handlerClickOnChoise: PropTypes.func.isRequired,
+  onChangeTown: PropTypes.func.isRequired,
   town: PropTypes.string.isRequired,
 };
 

@@ -16,7 +16,7 @@ let interval = null;
 const error = `img/avatars/user02.png`;
 
 function MapYandex(props) {
-  const {city, handlerClickOnChoise} = props;
+  const {city, onChangeTown} = props;
   const searchRef = useRef(null);
   const [text, setText] = useState(null);
   const [town, setTown] = useState(city);
@@ -41,7 +41,7 @@ function MapYandex(props) {
   const onItemClick = (el) => {
     setState({center: el.coords, zoom: el.zoom});
     setTown(el.data.content);
-    handlerClickOnChoise(el.data.content);
+    onChangeTown(el.data.content);
     console.log(`handlerClickOnChoise`);
   };
   const onButtonClick = () => {
@@ -285,7 +285,7 @@ function MapYandex(props) {
 }
 MapYandex.propTypes = {
   city: PropTypes.string.isRequired,
-  handlerClickOnChoise: PropTypes.func.isRequired
+  onChangeTown: PropTypes.func.isRequired
 };
 export default MapYandex;
 
