@@ -23,7 +23,7 @@ const AdFrom = (props) => {
 
   return (
     <form className={`ad-form`} method="post" encType="multipart/form-data"
-      action="https://js.dump.academy/keksobooking" autoComplete="off" ref={formRef}>
+      action="https://js.dump" autoComplete="off" ref={formRef}>
 
       <fieldset className="ad-form__element ad-form__element--wide">
         <label className="ad-form__label" htmlFor="title">Описание</label>

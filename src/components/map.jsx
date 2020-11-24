@@ -99,7 +99,7 @@ function MapYandex(props) {
     <div className="Map">
       <YMaps
         query={{
-          apikey: `8520df8a-dfd5-4276-af26-f0b4ed98dd6e`,
+          apikey: ` `,
         }}>
         <div id="map-basics">
           {show &&
