@@ -1,5 +1,8 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
+
+import {useTown} from "./town-provider.jsx";
+
 
 import {
   YMaps, Map, SearchControl, Placemark, ListBox, ListBoxItem, ObjectManager, GeoObject,
@@ -15,11 +18,11 @@ const myIcon = `img/avatars/user02.png`;
 let interval = null;
 const error = `img/avatars/user02.png`;
 
-function MapYandex(props) {
-  const {city, onChangeTown} = props;
+function MapYandex() {
+  const {town, setTown} = useTown();
   const searchRef = useRef(null);
   const [text, setText] = useState(null);
-  const [town, setTown] = useState(city);
+  const [city, setCity] = useState(town);
   const [show, setShow] = useState(true);
   const [noFlash, setNoFlash] = useState(null);
   const [flash, setflash] = useState(true);
@@ -27,6 +30,14 @@ function MapYandex(props) {
   const [map, setMap] = useState(null);
   const [p, setP] = useState(null);
 
+  useEffect(() => {
+    setCity(town);
+  }, [town]);
+  const computed = useCallback(() => setTown(city), [city]);
+
+  useEffect(() => {
+    computed(city);
+  }, [city]);
 
   const getTown = cities.find((item) => {
     return item.data.content === city;
@@ -40,9 +51,7 @@ function MapYandex(props) {
    */
   const onItemClick = (el) => {
     setState({center: el.coords, zoom: el.zoom});
-    setTown(el.data.content);
-    onChangeTown(el.data.content);
-    console.log(`handlerClickOnChoise`);
+    setCity(el.data.content);
   };
   const onButtonClick = () => {
     setNoFlash(`Press не мигающую кнопку`);
@@ -99,7 +108,7 @@ function MapYandex(props) {
     <div className="Map">
       <YMaps
         query={{
-          apikey: ` `,
+          apikey: `8520df8a-dfd5-4276-af26-f0b4ed98dd6e`,
         }}>
         <div id="map-basics">
           {show &&
@@ -157,12 +166,12 @@ function MapYandex(props) {
                   preset: `islands#greenClusterIcons`,
                 }}
                 features={data.features}
-                onMouseLeave={() =>{
+                onMouseLeave={() => {
                   console.log(`onMouseEnter ObjectManager`);
                 }}
               />
               {/* Координаты точек которые отрисовываем(сделать для каждого города свои) */}
-              {POINTS[town].map((point, index) => (
+              {POINTS[city].map((point, index) => (
                 <Placemark
                   key={index}
                   geometry={point.coords}
@@ -172,10 +181,10 @@ function MapYandex(props) {
                     balloonContent: `Белое всплывающие окошко с описанием`
                   }}
                   onClick={() => setText(`Test ${index}`)}
-                  onMouseEnter={() =>{
+                  onMouseEnter={() => {
                     console.log(`onMouseEnter`);
-                  } }
-                  onMouseLeave={() =>{
+                  }}
+                  onMouseLeave={() => {
                     console.log(`onMouseEnter`);
                   }}
                   options={{
@@ -224,7 +233,7 @@ function MapYandex(props) {
 
               {/* <RouteEditor /> */}
               {/* Выбор города */}
-              <ListBox data={{content: `${props.city}       `}}// хз почему но без пробелов не меняет город
+              <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
                 options={{float: `left`}}>
                 {cities.map((el) =>
                   <ListBoxItem
@@ -244,7 +253,7 @@ function MapYandex(props) {
               <Button
                 data={{
                   // Setting the text and icon for a button.
-                  content: `${props.city} + мигающая кнопка`,
+                  content: `${city} + мигающая кнопка`,
                   // The icon is 16x16 pixels.
                   image: error,
                 }}
@@ -285,7 +294,6 @@ function MapYandex(props) {
 }
 MapYandex.propTypes = {
   city: PropTypes.string.isRequired,
-  onChangeTown: PropTypes.func.isRequired
 };
 export default MapYandex;
 

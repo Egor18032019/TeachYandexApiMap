@@ -1,9 +1,7 @@
 import React, {useState, useCallback} from "react";
-import PropTypes from "prop-types";
-import MapFormList from "./map-form-list.jsx";
+ import MapFormList from "./map-form-list.jsx";
 
-const Count = (props) => {
-  const {town, handlerClickOnChoise} = props;
+const Count = () => {
 
   const [colored, setColored] = useState(false);
   const [count, setCount] = useState(1);
@@ -40,17 +38,10 @@ const Count = (props) => {
       </button>
 
       <MapFormList
-        handlerClickOnChoise={handlerClickOnChoise}
-        town={town}
         getItems={generateItemFromAPI}
       />
     </>
   );
-};
-
-Count.propTypes = {
-  town: PropTypes.string.isRequired,
-  handlerClickOnChoise: PropTypes.func.isRequired,
 };
 
 export default Count;

@@ -1,20 +1,20 @@
 import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
+import {useTown} from "./town-provider.jsx";
 
-const AdFrom = (props) => {
-  const {onChangeTown, town} = props;
+const AdFrom = () => {
+  const {town, setTown} = useTown();
   const formRef = useRef(null);
   const titleRef = useRef(null);
   const cityRef = useRef(``);
   const [title, setTitleRef] = useState(town);
   const [city, setCityRef] = useState(town);
+  // console.log(town + `AdFrom`);
 
-  console.log(town + ` Adform`);
-
-  const computed = useCallback(() => onChangeTown(city), [city]);
+  const computed = useCallback(() => setTown(city), [city]);
 
   useEffect(() => {
-    computed();
+    computed(city);
   }, [city]);
 
   useEffect(() => {
@@ -38,10 +38,13 @@ const AdFrom = (props) => {
           onChange={() => {
             setCityRef(cityRef.current.value);
             setTitleRef(cityRef.current.value);
+            // setTown(cityRef.current.value);
           }}
-          ref={cityRef} onClick={() => {
-            setCityRef(cityRef.current.value);
-          }}>
+          ref={cityRef}
+          onClick={() => {
+            setCityRef(cityRef.current.value); // если тут не прописанть онклик то менять не будет приклике
+          }}
+        >
           <option value="Москва">Москва</option>
           <option value="Saint-Petersburg">Saint-Petersburg</option>
           <option value="Екатеринбург">Екатеринбург</option>
@@ -55,7 +58,6 @@ const AdFrom = (props) => {
 };
 
 AdFrom.propTypes = {
-  onChangeTown: PropTypes.func.isRequired,
   town: PropTypes.string.isRequired,
 };
 

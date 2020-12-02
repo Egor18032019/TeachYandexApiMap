@@ -14,13 +14,10 @@ class App extends PureComponent {
   }
 
   _renderApp() {
-    const {town, handlerClickOnChoise} = this.props;
 
     return (
       <main>
         <Main
-          handlerClickOnChoise={handlerClickOnChoise}
-          town={town}
         />
         <Footer />
       </main>
@@ -51,23 +48,8 @@ class App extends PureComponent {
   }
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  handlerClickOnChoise(town) {
-    dispatch(ActionCreator.setTown(town));
-  },
-});
-
-const mapStateToProps = (store) => {
-  return {
-    town: getTown(store),
-
-  };
-};
 
 App.propTypes = {
-  handlerClickOnChoise: PropTypes.func.isRequired,
-  town: PropTypes.string.isRequired
 };
 
-export {App};
-export default connect(mapStateToProps, mapDispatchToProps)(App); // первым стате а вторым диспатчеры
+export default App;

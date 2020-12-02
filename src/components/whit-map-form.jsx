@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react";
-import PropTypes from "prop-types";
 import MapYandex from "./map.jsx";
 import AdFrom from "./ad-form.jsx";
+import {TownProvider} from "./town-provider.jsx";
 
 class WithMapForm extends PureComponent {
   constructor(props) {
@@ -13,7 +13,6 @@ class WithMapForm extends PureComponent {
   }
   onChangeTown(value) {
     this.setState({town: value});
-    console.log(this.state);
   }
 
   render() {
@@ -21,24 +20,19 @@ class WithMapForm extends PureComponent {
 
     return (
       <div className="map-list__element">
-        <MapYandex
-          city={town}
-          onChangeTown={this.onChangeTown}
-        />
-
-        < AdFrom
-          town={town}
-          onChangeTown={this.onChangeTown}
-        />
+        <TownProvider>
+          <MapYandex
+            city={town}
+            onChangeTown={this.onChangeTown}
+          />
+          < AdFrom
+            town={town}
+            onChangeTown={this.onChangeTown}
+          />
+        </TownProvider>
       </div>
     );
   }
 }
-
-
-WithMapForm.propTypes = {
-
-
-};
 
 export default WithMapForm;
