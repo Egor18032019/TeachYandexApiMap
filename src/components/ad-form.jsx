@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
-import {useTown} from "./town-provider.jsx";
+import {useTown} from "./town-provider.tsx";
 
 const AdFrom = () => {
   const {town, setTown} = useTown();

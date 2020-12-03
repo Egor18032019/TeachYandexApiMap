@@ -12,8 +12,8 @@ const Count = () => {
 
   const generateItemFromAPI = useCallback(
       (start) => {
+        // eslint-disable-next-line no-console
         console.log(`как рисовать маршурт то ?? `);
-
         return new Array(count)
         .fill(``)
         .map((_, index) => `Карта номер: ${start + index}`);

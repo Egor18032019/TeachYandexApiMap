@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react";
 import MapYandex from "./map.jsx";
 import AdFrom from "./ad-form.jsx";
-import {TownProvider} from "./town-provider.jsx";
+import {TownProvider} from "./town-provider.tsx";
 
 class WithMapForm extends PureComponent {
   constructor(props) {
