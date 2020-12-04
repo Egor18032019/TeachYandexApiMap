@@ -14,7 +14,8 @@ export default {
   {
     title: `Placemark 3`,
     descr: `Some description 3`,
-    coords: [55.763338, 37.565466],
+    iconContent: `Ты где ?`,
+    coords: [55.7, 37.5],
   }
   ],
   "Saint-Petersburg": [{

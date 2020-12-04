@@ -15,21 +15,25 @@ interface stateTownProvider {
   errorMessage: string,
 }
 
+interface reduceAction {
+  type: string,
+  payload: string | boolean
+}
 const TownContext = React.createContext<Partial<ContextProps>>({}); //передаем пустой обьект
 
-const ActionType = {
-  CHOISE_TOWN: `CHOISE_TOWN`,
-  GET_SERVER_STATUS: `GET_SERVER_STATUS`,
+enum ActionType {
+  CHOISE_TOWN = "CHOISE_TOWN",
+  GET_SERVER_STATUS = "GET_SERVER_STATUS"
 };
 
 
-const reducer = (state: stateTownProvider, action) => {
+const reducer = (state: stateTownProvider, action: reduceAction) => {
   switch (action.type) {
     case ActionType.CHOISE_TOWN: return Object.assign({}, state, {
-      town: action.town,
+      town: action.payload,
     });
     case ActionType.GET_SERVER_STATUS: return Object.assign({}, state, {
-      isDataLoaded: action.isDataLoaded
+      isDataLoaded: action.payload
     });
     default: return state;
   }
@@ -45,8 +49,8 @@ const TownProvider = ({ children }) => {
       errorMessage: ``,
     });
 
-  const setTown = (town: string) => dispatch({ type: ActionType.CHOISE_TOWN, town });
-  const setDataLoaded = (isDataLoaded: boolean) => dispatch({ type: ActionType.GET_SERVER_STATUS, isDataLoaded });
+  const setTown = (payload: string) => dispatch({ type: ActionType.CHOISE_TOWN, payload });
+  const setDataLoaded = (payload: boolean) => dispatch({ type: ActionType.GET_SERVER_STATUS, payload });
 
   return (
     <TownContext.Provider

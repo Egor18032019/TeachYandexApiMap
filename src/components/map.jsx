@@ -1,7 +1,7 @@
-import React, {useState, useRef, useEffect, useCallback} from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 
-import {useTown} from "./town-provider.tsx";
+import { useTown } from "./town-provider.tsx";
 
 
 import {
@@ -19,7 +19,7 @@ let interval = null;
 const error = `img/avatars/user02.png`;
 
 function MapYandex() {
-  const {town, setTown} = useTown();
+  const { town, setTown } = useTown();
   const searchRef = useRef(null);
   const [text, setText] = useState(null);
   const [city, setCity] = useState(town);
@@ -28,6 +28,7 @@ function MapYandex() {
   const [flash, setflash] = useState(true);
   const [ymaps, setYmaps] = useState(null);
   const [map, setMap] = useState(null);
+  const [route, setRoute] = useState(null);
   const [p, setP] = useState(null);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ function MapYandex() {
   const getTown = cities.find((item) => {
     return item.data.content === city;
   });
-  const mapState = {center: getTown.coords, zoom: getTown.zoom};
+  const mapState = { center: getTown.coords, zoom: getTown.zoom };
   const [state, setState] = useState(mapState);
 
   /**
@@ -50,7 +51,7 @@ function MapYandex() {
    * @param {array} el обьект с данными
    */
   const onItemClick = (el) => {
-    setState({center: el.coords, zoom: el.zoom});
+    setState({ center: el.coords, zoom: el.zoom });
     setCity(el.data.content);
   };
   const onButtonClick = () => {
@@ -92,6 +93,8 @@ function MapYandex() {
       clearInterval(interval);
     }
   };
+
+
   const addRoute = () => {
     console.log(state);
     console.log(searchRef);
@@ -100,9 +103,34 @@ function MapYandex() {
     console.log(searchRef);
   };
 
-  const handleApiAvaliable = (ymap) => {
-    setYmaps(ymap);
-  };
+  function initMap(ymap, mapRef) {
+    if (ymap) {
+      setYmaps(ymap);
+    }
+    if (mapRef) {
+      setMap(mapRef);
+    }
+    if (!ymap || !mapRef) {
+      return;
+    }
+    console.log(`multiRoute`);
+    let multiRoute = new ymap.multiRouter.MultiRoute({
+      referencePoints: POINTS[city]
+    });// Подписка на событие готовности маршрута.
+    multiRoute.model.events.add(`requestsuccess`, function () {
+      // Получение ссылки на активный маршрут.
+      let activeRoute = multiRoute.getActiveRoute();
+      // Получение коллекции путей активного маршрута.
+      let activeRoutePaths = activeRoute.getPaths();
+      // Проход по коллекции путей.
+      activeRoutePaths.each(function (path) {
+        console.log(`Длина пути: ` + path.properties.get(`distance`).text);
+        console.log(`Время прохождения пути: ` + path.properties.get(`duration`).text);
+      });
+    });
+    multiRoute.editor.stop();
+    mapRef.geoObjects.add(multiRoute);
+  }
 
   return (
     <div className="Map">
@@ -116,16 +144,11 @@ function MapYandex() {
               state={state}
               width={500}
               height={460}
-              instanceRef={(ref) => {
-                setMap(ref);
-              }}
-
+              instanceRef={(ref) => setMap(ref)}
+              onLoad={(ymap) => setYmaps(ymap)}
               modules={[
                 `geocode`,
               ]}
-              onLoad={// Теперь вы можете использовать обратный вызов события onLoad для компонентов, чтобы получить доступ к экземпляру ymaps.
-                (ymap) => handleApiAvaliable(ymap)
-              }
               onClick={(e) => {
                 let coords = e.get(`coords`);
                 console.log(coords);
@@ -150,8 +173,7 @@ function MapYandex() {
                     console.log(`SearchControl`);
                     console.log(p);
                   }
-                }
-              />
+                } />
 
               {/* кластер точек */}
               <ObjectManager
@@ -213,28 +235,32 @@ function MapYandex() {
                 // Specifying the coordinates of the vertices of the polyline.
                 coordinates: [[55.8, 37.5], [55.7, 37.4]],
               }}
-              // Defining properties of the geo object.
-              properties={{
-                // The contents of the hint.
-                hintContent: `Я геообъект`,
-                // The contents of the balloon.
-                balloonContent: `Меня можно перетащить. Если получиться`,
-              }}
-              // Setting the geo object options.
-              options={{
-                // Enabling drag-n-drop for the polyline.
-                draggable: true,
-                // The line color.
-                strokeColor: `#FFFF00`,
-                // Line width.
-                strokeWidth: 5,
-              }}
+                // Defining properties of the geo object.
+                properties={{
+                  // The contents of the hint.
+                  hintContent: `Я геообъект`,
+                  // The contents of the balloon.
+                  balloonContent: `Меня можно перетащить. Если получиться`,
+                }}
+                // Setting the geo object options.
+                options={{
+                  // Enabling drag-n-drop for the polyline.
+                  draggable: true,
+                  // The line color.
+                  strokeColor: `#FFFF00`,
+                  // Line width.
+                  strokeWidth: 5,
+                }}
               />
 
-              {/* <RouteEditor /> */}
+              <RouteEditor
+                onClick={() => {
+                  console.log(`ddddaaaaa`);
+                  initMap(map, null);
+                }} />
               {/* Выбор города */}
-              <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
-                options={{float: `left`}}>
+              <ListBox data={{ content: `${city}       ` }}// хз почему но без пробелов не меняет город
+                options={{ float: `left` }}>
                 {cities.map((el) =>
                   <ListBoxItem
                     data={el.data}
@@ -246,8 +272,8 @@ function MapYandex() {
               </ListBox>
               {/* мигающая кнопка */}
               <Button
-                data={{content: `Не мигающая кнопка`}}
-                options={{size: `large`, maxWidth: `200px`}}
+                data={{ content: `Не мигающая кнопка` }}
+                options={{ size: `large`, maxWidth: `200px` }}
                 onClick={() => onButtonClick()}
               />
               <Button
@@ -262,7 +288,7 @@ function MapYandex() {
            * Because the button changes depending on the size of the map, we will give it
            * three different maxWidth values in the array.
            */
-                options={{maxWidth: [28, 150, 178]}}
+                options={{ maxWidth: [28, 150, 178] }}
                 instanceRef={onFlashRef}
               />
               <RouteButton
