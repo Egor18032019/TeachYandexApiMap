@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
 
-import { useTown } from "./town-provider.tsx";
+import {useTown} from "./town-provider.tsx";
 
 
 import {
@@ -19,39 +19,43 @@ let interval = null;
 const error = `img/avatars/user02.png`;
 
 function MapYandex() {
-  const { town, setTown } = useTown();
+  const {town, setTown} = useTown();
   const searchRef = useRef(null);
   const [text, setText] = useState(null);
   const [city, setCity] = useState(town);
   const [show, setShow] = useState(true);
   const [noFlash, setNoFlash] = useState(null);
   const [flash, setflash] = useState(true);
-  const [ymaps, setYmaps] = useState(null);
+  const getTown = cities.find((item) => {
+    return item.data.content === city;
+  });
+  const mapState = {center: getTown.coords, zoom: getTown.zoom};
+  const [state, setState] = useState(mapState);
+  const [ymaps, setYmaps] = useState({});
   const [map, setMap] = useState(null);
+
   const [route, setRoute] = useState(null);
   const [p, setP] = useState(null);
 
   useEffect(() => {
     setCity(town);
   }, [town]);
+
   const computed = useCallback(() => setTown(city), [city]);
+  useEffect(() => {
+    handleApiAvaliable();
+  }, [map]);
 
   useEffect(() => {
     computed(city);
   }, [city]);
-
-  const getTown = cities.find((item) => {
-    return item.data.content === city;
-  });
-  const mapState = { center: getTown.coords, zoom: getTown.zoom };
-  const [state, setState] = useState(mapState);
 
   /**
    * при клике изменяет state - даёт город и координты города для отрисовки
    * @param {array} el обьект с данными
    */
   const onItemClick = (el) => {
-    setState({ center: el.coords, zoom: el.zoom });
+    setState({center: el.coords, zoom: el.zoom});
     setCity(el.data.content);
   };
   const onButtonClick = () => {
@@ -94,65 +98,87 @@ function MapYandex() {
     }
   };
 
-
-  const addRoute = () => {
-    console.log(state);
-    console.log(searchRef);
-    console.log(map);
-    console.log(ymaps);
-    console.log(searchRef);
+  const handleApiAvaliable = () => {
+    if (ymaps && map) {
+      console.log(`handleApiAvaliable`);
+      const balloonContentBodyLayout = ymaps.templateLayoutFactory.createClass(
+          `<div style = {color:"orange" }>"Test"</div>`
+      );
+      ymaps
+        .route(
+            [
+              `Екатеринбург Энгельса 36`, // откуда
+              {type: `viaPoint`, point: [56.800584, 60.675637]}, // заехать
+              `Екатеринбург ленина 54`, // заехать
+              {type: `wayPoint`, point: [56.716733, 60.589989]}// куда
+            ],
+            {balloonContentBodyLayout}
+        )
+        .then((newRoute) => {
+          setRoute(newRoute);
+          newRoute.getPaths().options.set({
+            // в балуне выводим только информацию о времени движения с учетом пробок = сделал как в примере но неработает
+            balloonContentBodyLayout: ymaps.templateLayoutFactory.createClass(`$[properties.humanJamsTime]`),
+            // можно выставить настройки графики маршруту
+            strokeColor: `#000`,
+            opacity: 0.9,
+            mapStateAutoApply: true,
+            avoidTrafficJams: true,
+          });
+          // добавляем маршрут на карту
+          map.geoObjects.add(newRoute);
+        });
+    }
   };
 
-  function initMap(ymap, mapRef) {
-    if (ymap) {
-      setYmaps(ymap);
-    }
-    if (mapRef) {
-      setMap(mapRef);
-    }
-    if (!ymap || !mapRef) {
-      return;
-    }
-    console.log(`multiRoute`);
-    let multiRoute = new ymap.multiRouter.MultiRoute({
-      referencePoints: POINTS[city]
-    });// Подписка на событие готовности маршрута.
-    multiRoute.model.events.add(`requestsuccess`, function () {
-      // Получение ссылки на активный маршрут.
-      let activeRoute = multiRoute.getActiveRoute();
-      // Получение коллекции путей активного маршрута.
-      let activeRoutePaths = activeRoute.getPaths();
-      // Проход по коллекции путей.
-      activeRoutePaths.each(function (path) {
-        console.log(`Длина пути: ` + path.properties.get(`distance`).text);
-        console.log(`Время прохождения пути: ` + path.properties.get(`duration`).text);
+  const addRoute = () => {
+    if (ymaps && map) {
+      const arrayPoint = POINTS[city].map((i) => {
+        return i.coords;
       });
-    });
-    multiRoute.editor.stop();
-    mapRef.geoObjects.add(multiRoute);
-  }
+      ymaps.route(arrayPoint
+          , {
+            multiRoute: true
+          })
+        .then((routeNew) => {
+          setRoute(routeNew);
+          map.geoObjects.add(routeNew);
+        });
+    }
+  };
 
   return (
     <div className="Map">
       <YMaps
         query={{
           apikey: `8520df8a-dfd5-4276-af26-f0b4ed98dd6e`,
-        }}>
+        }}
+        onApiAvaliable={(ymapsNew) => {
+          handleApiAvaliable(ymapsNew);
+        }}
+      >
         <div id="map-basics">
           {show &&
             <Map
               state={state}
               width={500}
               height={460}
-              instanceRef={(ref) => setMap(ref)}
-              onLoad={(ymap) => setYmaps(ymap)}
-              modules={[
-                `geocode`,
-              ]}
+              instanceRef={(ref) => {
+                setMap(ref);
+                console.log(`instanceRef`);
+              }}
+
+              onLoad={(ymapsNew) => {
+                setYmaps(ymapsNew);
+                console.log(`onLoad`);
+              }}
+
               onClick={(e) => {
                 let coords = e.get(`coords`);
                 console.log(coords);
-              }} >
+              }}
+              modules={[`templateLayoutFactory`, `layout.ImageWithContent`, `route`]}
+            >
               <div
                 open={false}>
                 <h2>Карта для тестов</h2>
@@ -174,7 +200,6 @@ function MapYandex() {
                     console.log(p);
                   }
                 } />
-
               {/* кластер точек */}
               <ObjectManager
                 options={{
@@ -235,32 +260,30 @@ function MapYandex() {
                 // Specifying the coordinates of the vertices of the polyline.
                 coordinates: [[55.8, 37.5], [55.7, 37.4]],
               }}
-                // Defining properties of the geo object.
-                properties={{
-                  // The contents of the hint.
-                  hintContent: `Я геообъект`,
-                  // The contents of the balloon.
-                  balloonContent: `Меня можно перетащить. Если получиться`,
-                }}
-                // Setting the geo object options.
-                options={{
-                  // Enabling drag-n-drop for the polyline.
-                  draggable: true,
-                  // The line color.
-                  strokeColor: `#FFFF00`,
-                  // Line width.
-                  strokeWidth: 5,
-                }}
+              // Defining properties of the geo object.
+              properties={{
+                // The contents of the hint.
+                hintContent: `Я геообъект`,
+                // The contents of the balloon.
+                balloonContent: `Меня можно перетащить. Если получиться`,
+              }}
+              // Setting the geo object options.
+              options={{
+                // Enabling drag-n-drop for the polyline.
+                draggable: true,
+                // The line color.
+                strokeColor: `#FFFF00`,
+                // Line width.
+                strokeWidth: 5,
+              }}
               />
-
-              <RouteEditor
+              {/* <RouteEditor
                 onClick={() => {
                   console.log(`ddddaaaaa`);
-                  initMap(map, null);
-                }} />
+                }} /> */}
               {/* Выбор города */}
-              <ListBox data={{ content: `${city}       ` }}// хз почему но без пробелов не меняет город
-                options={{ float: `left` }}>
+              <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
+                options={{float: `left`}}>
                 {cities.map((el) =>
                   <ListBoxItem
                     data={el.data}
@@ -272,8 +295,8 @@ function MapYandex() {
               </ListBox>
               {/* мигающая кнопка */}
               <Button
-                data={{ content: `Не мигающая кнопка` }}
-                options={{ size: `large`, maxWidth: `200px` }}
+                data={{content: `Не мигающая кнопка`}}
+                options={{size: `large`, maxWidth: `200px`}}
                 onClick={() => onButtonClick()}
               />
               <Button
@@ -288,10 +311,10 @@ function MapYandex() {
            * Because the button changes depending on the size of the map, we will give it
            * three different maxWidth values in the array.
            */
-                options={{ maxWidth: [28, 150, 178] }}
+                options={{maxWidth: [28, 150, 178]}}
                 instanceRef={onFlashRef}
               />
-              <RouteButton
+              {/* <RouteButton
                 data={{
                   image: myIcon,
                   title: `титул`,
@@ -305,7 +328,7 @@ function MapYandex() {
                     top: `80px`
                   }
                 }}
-              />
+              /> */}
 
             </Map>
           } </div>

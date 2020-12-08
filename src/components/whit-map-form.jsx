@@ -1,5 +1,6 @@
 import React, {PureComponent} from "react";
 import MapYandex from "./map.jsx";
+// import MapYandex from "./draft.jsx";
 import AdFrom from "./ad-form.jsx";
 import {TownProvider} from "./town-provider.tsx";
 

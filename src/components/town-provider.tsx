@@ -45,7 +45,7 @@ const TownProvider = ({ children }) => {
       page: `mainPage`,
       isDataLoaded: false,
       isDataPost: false,
-      town: `Москва`,
+      town: `Екатеринбург`,
       errorMessage: ``,
     });
 

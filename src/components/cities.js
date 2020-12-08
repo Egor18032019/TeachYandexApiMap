@@ -25,7 +25,7 @@ export default [{
   options: {
     selectOnClick: false
   },
-  coords: [56.50, 60.35],
-  zoom: 5
+  coords: [56.844357898233405, 60.623008872864894],
+  zoom: 9
 },
 ];
