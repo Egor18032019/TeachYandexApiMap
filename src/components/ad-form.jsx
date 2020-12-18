@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect, useCallback} from "react";
-import PropTypes from "prop-types";
+
 import {useTown} from "./town-provider.tsx";
 
 const AdFrom = () => {
@@ -55,10 +55,6 @@ const AdFrom = () => {
       </fieldset>
     </form>
   );
-};
-
-AdFrom.propTypes = {
-  town: PropTypes.string.isRequired,
 };
 
 export default AdFrom;

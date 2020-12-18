@@ -1,19 +1,16 @@
-import React, {useState, useRef, useEffect, useCallback} from "react";
-import PropTypes from "prop-types";
+import React, {useState, useRef, useEffect, useCallback, useMemo} from "react";
 
 import {useTown} from "./town-provider.tsx";
 
 
 import {
   YMaps, Map, SearchControl, Placemark, ListBox, ListBoxItem, ObjectManager, GeoObject,
-  Button, Circle, RouteEditor, Modal, RouteButton, MultiRoute, TrafficControl, Polyline, Rectangle, Polygon
+  Button, ZoomControl, RouteEditor, Modal, RouteButton, MultiRoute, TrafficControl,
 } from "react-yandex-maps";
 import POINTS from './points';
 
 import data from './data.js';
 import cities from './cities.js';
-
-const myIcon = `img/avatars/user02.png`;
 
 let interval = null;
 const error = `img/avatars/user02.png`;
@@ -37,19 +34,25 @@ function MapYandex() {
   const [route, setRoute] = useState(null);
   const [p, setP] = useState(null);
 
-  useEffect(() => {
-    setCity(town);
-  }, [town]);
 
   const computed = useCallback(() => setTown(city), [city]);
   useEffect(() => {
-    handleApiAvaliable();
+    console.log(`handleApiAvaliable0`);
+    _handleApiAvaliable();
   }, [map]);
 
   useEffect(() => {
+    _handleApiAvaliable();
+    setCity(town);
+  }, [town]);
+  useEffect(() => {
+    _handleApiAvaliable();
     computed(city);
   }, [city]);
-
+  useEffect(() => {
+    _handleApiAvaliable();
+    setState(mapState);
+  }, [city]);
   /**
    * при клике изменяет state - даёт город и координты города для отрисовки
    * @param {array} el обьект с данными
@@ -73,9 +76,6 @@ function MapYandex() {
     console.log(`Я слежу жа flashing button`);
   }, [flash]);
 
-  useEffect(() => {
-    setState(mapState);
-  }, [city]);
 
   const onFlashRef = (ref) => {
     if (ref !== null) {
@@ -98,19 +98,18 @@ function MapYandex() {
     }
   };
 
-  const handleApiAvaliable = () => {
+  const _handleApiAvaliable = () => {
     if (ymaps && map) {
-      console.log(`handleApiAvaliable`);
       const balloonContentBodyLayout = ymaps.templateLayoutFactory.createClass(
-          `<div style = {color:"orange" }>"Test"</div>`
+          `<div style = {color:"orange" }>"Gde eto ??"</div>`
       );
       ymaps
         .route(
             [
-              `Екатеринбург Энгельса 36`, // откуда
-              {type: `viaPoint`, point: [56.800584, 60.675637]}, // заехать
-              `Екатеринбург ленина 54`, // заехать
-              {type: `wayPoint`, point: [56.716733, 60.589989]}// куда
+              town, // откуда
+              // {type: `viaPoint`, point: [56.800584, 60.675637]}, // заехать
+              `Казань`, // куда
+            // {type: `wayPoint`, point: [56.716733, 60.589989]}// куда
             ],
             {balloonContentBodyLayout}
         )
@@ -131,18 +130,19 @@ function MapYandex() {
     }
   };
 
-  const addRoute = () => {
-    if (ymaps && map) {
+  const addRoute = (ymapsInst, mapInst) => {
+    if (ymapsInst && mapInst) {
       const arrayPoint = POINTS[city].map((i) => {
         return i.coords;
       });
-      ymaps.route(arrayPoint
+      ymapsInst.route(
+          arrayPoint
           , {
             multiRoute: true
           })
         .then((routeNew) => {
           setRoute(routeNew);
-          map.geoObjects.add(routeNew);
+          mapInst.geoObjects.add(routeNew); // рисует при каждом клике. не смог ничего придумать
         });
     }
   };
@@ -153,8 +153,8 @@ function MapYandex() {
         query={{
           apikey: `8520df8a-dfd5-4276-af26-f0b4ed98dd6e`,
         }}
-        onApiAvaliable={(ymapsNew) => {
-          handleApiAvaliable(ymapsNew);
+        onApiAvaliable={() => {
+          console.log(`onApiAvaliable`);
         }}
       >
         <div id="map-basics">
@@ -200,6 +200,7 @@ function MapYandex() {
                     console.log(p);
                   }
                 } />
+              <ZoomControl />
               {/* кластер точек */}
               <ObjectManager
                 options={{
@@ -258,7 +259,7 @@ function MapYandex() {
                 // The "Polyline" geometry type.
                 type: `LineString`,
                 // Specifying the coordinates of the vertices of the polyline.
-                coordinates: [[55.8, 37.5], [55.7, 37.4]],
+                coordinates: [POINTS[city][0].coords, POINTS[city][1].coords],
               }}
               // Defining properties of the geo object.
               properties={{
@@ -277,10 +278,10 @@ function MapYandex() {
                 strokeWidth: 5,
               }}
               />
-              {/* <RouteEditor
+              <RouteEditor
                 onClick={() => {
                   console.log(`ddddaaaaa`);
-                }} /> */}
+                }} />
               {/* Выбор города */}
               <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
                 options={{float: `left`}}>
@@ -314,9 +315,9 @@ function MapYandex() {
                 options={{maxWidth: [28, 150, 178]}}
                 instanceRef={onFlashRef}
               />
-              {/* <RouteButton
+              <RouteButton
                 data={{
-                  image: myIcon,
+                  image: error,
                   title: `титул`,
                 }}
                 options={{
@@ -328,11 +329,11 @@ function MapYandex() {
                     top: `80px`
                   }
                 }}
-              /> */}
+              />
 
             </Map>
           } </div>
-        <button onClick={() => addRoute()}>Show route</button>
+        <button onClick={() => addRoute(ymaps, map)}>Show route</button>
         {/* To destroy it, just unmount component */}
         <button onClick={() => setShow(!show)}>
           {show ? `Delete map` : `Show map`}
@@ -341,8 +342,6 @@ function MapYandex() {
     </div >
   );
 }
-MapYandex.propTypes = {
-  city: PropTypes.string.isRequired,
-};
+
 export default MapYandex;
 
