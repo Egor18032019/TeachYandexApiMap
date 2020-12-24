@@ -34,8 +34,7 @@ export default {
     coords: [59.793559, 30.435983],
   }
   ],
-  "Екатеринбург": [
-    {
+  "Екатеринбург": [{
     title: `Placemark 7`,
     descr: `Some description 7`,
     coords: [56.800584, 60.675638],

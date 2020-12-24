@@ -3,7 +3,12 @@ import { useContext, useReducer } from 'react';
 
 type ContextProps = {
   town: string,
+  endPointRoute: string,
+  time: string,
+  length: string,
   setTown: (town: string) => void,
+  setLength: (town: string) => void,
+  setTime: (town: string) => void,
   setDataLoaded: (isDataLoaded: boolean) => void,
 };
 
@@ -12,7 +17,10 @@ interface stateTownProvider {
   isDataLoaded: boolean,
   isDataPost: boolean,
   town: string,
+  endPointRoute: string,
   errorMessage: string,
+  length: string,
+  time: string,
 }
 
 interface reduceAction {
@@ -23,6 +31,8 @@ const TownContext = React.createContext<Partial<ContextProps>>({}); //перед
 
 enum ActionType {
   CHOISE_TOWN = "CHOISE_TOWN",
+  CHOISE_LENGTH = "CHOISE_LENGTH",
+  CHOISE_TIME = "CHOISE_TIME",
   GET_SERVER_STATUS = "GET_SERVER_STATUS"
 };
 
@@ -31,6 +41,12 @@ const reducer = (state: stateTownProvider, action: reduceAction) => {
   switch (action.type) {
     case ActionType.CHOISE_TOWN: return Object.assign({}, state, {
       town: action.payload,
+    });
+    case ActionType.CHOISE_LENGTH: return Object.assign({}, state, {
+      length: action.payload,
+    });
+    case ActionType.CHOISE_TIME: return Object.assign({}, state, {
+      time: action.payload,
     });
     case ActionType.GET_SERVER_STATUS: return Object.assign({}, state, {
       isDataLoaded: action.payload
@@ -46,17 +62,27 @@ const TownProvider = ({ children }) => {
       isDataLoaded: false,
       isDataPost: false,
       town: `Екатеринбург`,
+      endPointRoute: `Казань`,
       errorMessage: ``,
+      length: "",
+      time: ""
     });
 
   const setTown = (payload: string) => dispatch({ type: ActionType.CHOISE_TOWN, payload });
+  const setLength = (payload: string) => dispatch({ type: ActionType.CHOISE_LENGTH, payload });
+  const setTime = (payload: string) => dispatch({ type: ActionType.CHOISE_TIME, payload });
   const setDataLoaded = (payload: boolean) => dispatch({ type: ActionType.GET_SERVER_STATUS, payload });
 
   return (
     <TownContext.Provider
       value={{
         town: state.town,
+        endPointRoute: state.endPointRoute,
+        length: state.length,
+        time: state.time,
         setTown,
+        setLength,
+        setTime,
         setDataLoaded
       }}>
       { children}
@@ -66,11 +92,11 @@ const TownProvider = ({ children }) => {
 
 
 
-const useTown = () => {
+const useContextMap = () => {
   return useContext(TownContext);
 };
 
 export {
   TownProvider,
-  useTown
+  useContextMap
 };

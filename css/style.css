@@ -63,13 +63,11 @@ fieldset {
 
 /* Карта
      ========================================================================== */
-.ymaps-2-1-77-controls__toolbar {
-  /* margin-top: 22px;  не могу поменять так как инлайно зашит */
-  background-color: olivedrab;
-  padding: 5px;
-}
-
 #map-basics {
   display: block;
   height: 515px;
+}
+
+.ad-form__input {
+  width: 100%;
 }
