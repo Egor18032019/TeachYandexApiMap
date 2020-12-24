@@ -1,11 +1,11 @@
-import React, {useState, useRef, useEffect, useCallback, useMemo} from "react";
+import React, {useState, useRef, useEffect, useCallback} from "react";
 
-import {useTown} from "./town-provider.tsx";
+import {useContextMap} from "./town-provider.tsx";
 
 
 import {
   YMaps, Map, SearchControl, Placemark, ListBox, ListBoxItem, ObjectManager, GeoObject,
-  Button, ZoomControl, RouteEditor, Modal, RouteButton, MultiRoute, TrafficControl,
+  Button, ZoomControl, RouteEditor, Modal, RouteButton,
 } from "react-yandex-maps";
 import POINTS from './points';
 
@@ -16,7 +16,7 @@ let interval = null;
 const error = `img/avatars/user02.png`;
 
 function MapYandex() {
-  const {town, setTown} = useTown();
+  const {town, endPointRoute, setTown, setLength, setTime} = useContextMap(); // тащит данные из контекста
   const searchRef = useRef(null);
   const [text, setText] = useState(null);
   const [city, setCity] = useState(town);
@@ -31,14 +31,16 @@ function MapYandex() {
   const [ymaps, setYmaps] = useState({});
   const [map, setMap] = useState(null);
 
-  const [route, setRoute] = useState(null);
+  const [defaultRoute, setdefaultRoute] = useState(null);
+  const [clickRoute, setClickRoute] = useState(null);
+  const [userRoute, setUserRoute] = useState(null);
   const [p, setP] = useState(null);
 
 
   const computed = useCallback(() => setTown(city), [city]);
   useEffect(() => {
     console.log(`handleApiAvaliable0`);
-    _handleApiAvaliable();
+    _handleApiAvaliable(ymaps, map);
   }, [map]);
 
   useEffect(() => {
@@ -46,8 +48,12 @@ function MapYandex() {
     setCity(town);
   }, [town]);
   useEffect(() => {
-    _handleApiAvaliable();
+    _handleApiAvaliable(ymaps, map);
     computed(city);
+    console.log(`handleApiAvaliable1`);
+    if (clickRoute) {
+      map.geoObjects.remove(clickRoute);
+    }
   }, [city]);
   useEffect(() => {
     _handleApiAvaliable();
@@ -98,26 +104,34 @@ function MapYandex() {
     }
   };
 
-  const _handleApiAvaliable = () => {
-    if (ymaps && map) {
-      const balloonContentBodyLayout = ymaps.templateLayoutFactory.createClass(
+  const _handleApiAvaliable = (ymapsInst, mapInst) => {
+    if (ymapsInst && mapInst) {
+      const balloonContentBodyLayout = ymapsInst.templateLayoutFactory.createClass(
           `<div style = {color:"orange" }>"Gde eto ??"</div>`
       );
-      ymaps
+      ymapsInst
         .route(
             [
-              town, // откуда
+              city, // откуда
               // {type: `viaPoint`, point: [56.800584, 60.675637]}, // заехать
-              `Казань`, // куда
+              endPointRoute, // куда
             // {type: `wayPoint`, point: [56.716733, 60.589989]}// куда
             ],
             {balloonContentBodyLayout}
+
         )
         .then((newRoute) => {
-          setRoute(newRoute);
+          mapInst.geoObjects.remove(defaultRoute);
+          setdefaultRoute(newRoute);
+          const lengthRoute = Math.floor(newRoute.getLength() / 1000) + ` км`;
+          setLength(lengthRoute);
+          const timeRoute = Math.floor(newRoute.getJamsTime() / 3600) + ` часов`;
+          setTime(timeRoute);
+          const balloonContentLayout = ymapsInst.templateLayoutFactory.createClass(
+              `<span class="map-asd"> Расстояние: ` + `Почему не отрисовываеться?` + `.</span><br/>`);
           newRoute.getPaths().options.set({
             // в балуне выводим только информацию о времени движения с учетом пробок = сделал как в примере но неработает
-            balloonContentBodyLayout: ymaps.templateLayoutFactory.createClass(`$[properties.humanJamsTime]`),
+            balloonContentBodyLayout: balloonContentLayout,
             // можно выставить настройки графики маршруту
             strokeColor: `#000`,
             opacity: 0.9,
@@ -125,7 +139,7 @@ function MapYandex() {
             avoidTrafficJams: true,
           });
           // добавляем маршрут на карту
-          map.geoObjects.add(newRoute);
+          mapInst.geoObjects.add(newRoute);
         });
     }
   };
@@ -141,8 +155,9 @@ function MapYandex() {
             multiRoute: true
           })
         .then((routeNew) => {
-          setRoute(routeNew);
-          mapInst.geoObjects.add(routeNew); // рисует при каждом клике. не смог ничего придумать
+          mapInst.geoObjects.remove(clickRoute);
+          setClickRoute(routeNew);
+          mapInst.geoObjects.add(routeNew);// добавляем этот маршурт на карту
         });
     }
   };
@@ -164,6 +179,7 @@ function MapYandex() {
               width={500}
               height={460}
               instanceRef={(ref) => {
+
                 setMap(ref);
                 console.log(`instanceRef`);
               }}
@@ -213,7 +229,7 @@ function MapYandex() {
                 clusters={{
                   preset: `islands#greenClusterIcons`,
                 }}
-                features={data.features}
+                features={data[city]}
                 onMouseLeave={() => {
                   console.log(`onMouseEnter ObjectManager`);
                 }}
@@ -226,7 +242,10 @@ function MapYandex() {
                   properties={{
                     iconContent: point.iconContent,
                     hintContent: point.hintContent,
-                    balloonContent: `Белое всплывающие окошко с описанием`
+                    balloonContent: `Белое всплывающие окошко с описанием которое почему то не отображаеться если есть ниже следующие`,
+                    balloonContentHeader: `<strong>Какой то заголовок</strong>`,
+                    balloonContentBody: `Содержимое <em>балуна</em>`,
+                    balloonContentFooter: `<p><strong>Веб-сайт:</strong> <a rel="nofollow" href="#" target="_blank">перейти</a></p>`
                   }}
                   onClick={() => setText(`Test ${index}`)}
                   onMouseEnter={() => {
