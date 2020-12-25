@@ -267,7 +267,7 @@ function MapYandex() {
                     console.log(`onMouseEnter`);
                   }}
                   onMouseLeave={() => {
-                    console.log(`onMouseEnter`);
+                    console.log(`onMouseLeave`);
                   }}
                   options={{
                     // The placemark's icon will stretch to fit its contents.
@@ -314,7 +314,7 @@ function MapYandex() {
               />
               <RouteEditor
                 onClick={() => {
-                  console.log(`ddddaaaaa`);
+                  console.log(`RouteEditor`);
                 }} />
               {/* Выбор города */}
               <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
