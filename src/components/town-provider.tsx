@@ -7,9 +7,10 @@ type ContextProps = {
   time: string,
   length: string,
   setTown: (town: string) => void,
-  setLength: (town: string) => void,
-  setTime: (town: string) => void,
+  setLength: (length: string) => void,
+  setTime: (time: string) => void,
   setDataLoaded: (isDataLoaded: boolean) => void,
+  setEndPointRoute: (endPointRoute: string) => void,
 };
 
 interface stateTownProvider {
@@ -31,6 +32,7 @@ const TownContext = React.createContext<Partial<ContextProps>>({}); //перед
 
 enum ActionType {
   CHOISE_TOWN = "CHOISE_TOWN",
+  CHOISE_ENDPOINTROUTE = "CHOISE_ENDPOINTROUTE",
   CHOISE_LENGTH = "CHOISE_LENGTH",
   CHOISE_TIME = "CHOISE_TIME",
   GET_SERVER_STATUS = "GET_SERVER_STATUS"
@@ -41,6 +43,9 @@ const reducer = (state: stateTownProvider, action: reduceAction) => {
   switch (action.type) {
     case ActionType.CHOISE_TOWN: return Object.assign({}, state, {
       town: action.payload,
+    });
+    case ActionType.CHOISE_ENDPOINTROUTE: return Object.assign({}, state, {
+      endPointRoute: action.payload,
     });
     case ActionType.CHOISE_LENGTH: return Object.assign({}, state, {
       length: action.payload,
@@ -69,6 +74,7 @@ const TownProvider = ({ children }) => {
     });
 
   const setTown = (payload: string) => dispatch({ type: ActionType.CHOISE_TOWN, payload });
+  const setEndPointRoute = (payload: string) => dispatch({ type: ActionType.CHOISE_ENDPOINTROUTE, payload });
   const setLength = (payload: string) => dispatch({ type: ActionType.CHOISE_LENGTH, payload });
   const setTime = (payload: string) => dispatch({ type: ActionType.CHOISE_TIME, payload });
   const setDataLoaded = (payload: boolean) => dispatch({ type: ActionType.GET_SERVER_STATUS, payload });
@@ -83,7 +89,8 @@ const TownProvider = ({ children }) => {
         setTown,
         setLength,
         setTime,
-        setDataLoaded
+        setDataLoaded,
+        setEndPointRoute
       }}>
       { children}
     </TownContext.Provider>
