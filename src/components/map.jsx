@@ -16,8 +16,9 @@ let interval = null;
 const error = `img/avatars/user02.png`;
 
 function MapYandex() {
-  const {town, endPointRoute, setTown, setLength, setTime} = useContextMap(); // тащит данные из контекста
+  const {town, endPointRoute, setTown, setEndPointRoute, setLength, setTime} = useContextMap(); // тащит данные из контекста
   const searchRef = useRef(null);
+  const endPoinRef = useRef();
   const [text, setText] = useState(null);
   const [city, setCity] = useState(town);
   const [show, setShow] = useState(true);
@@ -42,22 +43,29 @@ function MapYandex() {
     console.log(`handleApiAvaliable0`);
     _handleApiAvaliable(ymaps, map);
   }, [map]);
-
   useEffect(() => {
-    _handleApiAvaliable();
+    console.log(`endPointRoute`);
+    _handleApiAvaliable(ymaps, map);
+  }, [endPointRoute]);
+  useEffect(() => {
     setCity(town);
   }, [town]);
   useEffect(() => {
-    _handleApiAvaliable(ymaps, map);
-    computed(city);
     console.log(`handleApiAvaliable1`);
+    _handleApiAvaliable(ymaps, map);
+  }, [town]);
+  useEffect(() => {
+    _handleApiAvaliable(ymaps, map);
+    console.log(`handleApiAvaliable2`);
     if (clickRoute) {
       map.geoObjects.remove(clickRoute);
     }
   }, [city]);
   useEffect(() => {
-    _handleApiAvaliable();
     setState(mapState);
+  }, [city]);
+  useEffect(() => {
+    computed(city);
   }, [city]);
   /**
    * при клике изменяет state - даёт город и координты города для отрисовки
@@ -137,6 +145,7 @@ function MapYandex() {
             opacity: 0.9,
             mapStateAutoApply: true,
             avoidTrafficJams: true,
+            results: 1
           });
           // добавляем маршрут на карту
           mapInst.geoObjects.add(newRoute);
@@ -161,7 +170,10 @@ function MapYandex() {
         });
     }
   };
-
+  const onChangeEndPoint = () => {
+    console.log(endPoinRef.current.value);
+    setEndPointRoute(endPoinRef.current.value);
+  };
   return (
     <div className="Map">
       <YMaps
@@ -179,7 +191,9 @@ function MapYandex() {
               width={500}
               height={460}
               instanceRef={(ref) => {
-
+                if (map) {
+                  map.geoObjects.remove(defaultRoute);
+                }
                 setMap(ref);
                 console.log(`instanceRef`);
               }}
@@ -193,11 +207,12 @@ function MapYandex() {
                 let coords = e.get(`coords`);
                 console.log(coords);
               }}
-              modules={[`templateLayoutFactory`, `layout.ImageWithContent`, `route`]}
+              modules={[`templateLayoutFactory`, `route`]}
             >
               <div
                 open={false}>
-                <h2>Карта для тестов</h2>
+                <h2>Определяем маршрут до   <input type="text" placeholder={` например: ${endPointRoute}`} ref={endPoinRef} onChange={onChangeEndPoint} /></h2>
+
               </div>
               {/* строка поиска */}
               <SearchControl
@@ -252,7 +267,7 @@ function MapYandex() {
                     console.log(`onMouseEnter`);
                   }}
                   onMouseLeave={() => {
-                    console.log(`onMouseEnter`);
+                    console.log(`onMouseLeave`);
                   }}
                   options={{
                     // The placemark's icon will stretch to fit its contents.
@@ -299,7 +314,7 @@ function MapYandex() {
               />
               <RouteEditor
                 onClick={() => {
-                  console.log(`ddddaaaaa`);
+                  console.log(`RouteEditor`);
                 }} />
               {/* Выбор города */}
               <ListBox data={{content: `${city}       `}}// хз почему но без пробелов не меняет город
