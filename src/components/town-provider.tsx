@@ -67,7 +67,7 @@ const TownProvider = ({ children }) => {
       isDataLoaded: false,
       isDataPost: false,
       town: `Екатеринбург`,
-      endPointRoute: `Казань`,
+      endPointRoute: ``,
       errorMessage: ``,
       length: "",
       time: ""

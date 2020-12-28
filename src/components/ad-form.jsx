@@ -7,13 +7,16 @@ const AdFrom = () => {
   const formRef = useRef(null);
   const cityRef = useRef(``);
   const [city, setCityRef] = useState(town);
-  // console.log(town + `AdFrom`);
-
   const computed = useCallback(() => setTown(city), [city]);
 
   useEffect(() => {
+    console.log(`computed AdFrom`);
     computed(city);
   }, [city]);
+  useEffect(() => {
+    console.log(`setCityRef AdFrom`);
+    setCityRef(town);
+  }, [town]);
 
   return (
     <form className={`ad-form`} method="post" encType="multipart/form-data"
@@ -29,9 +32,9 @@ const AdFrom = () => {
             setCityRef(cityRef.current.value);
           }}
           ref={cityRef}
-          onClick={() => {
-            setCityRef(cityRef.current.value); // если тут не прописанть онклик то менять не будет приклике
-          }}
+          // onClick={() => {
+          //   setCityRef(cityRef.current.value); // если тут не прописанть онклик то менять не будет приклике
+          // }}
         >
           <option value="Москва">Москва</option>
           <option value="Saint-Petersburg">Saint-Petersburg</option>
