@@ -214,11 +214,7 @@ function MapYandex() {
               }}
               modules={[`templateLayoutFactory`, `route`]}
             >
-              <div
-                open={false}>
-                <h2>Определяем маршрут до
-                  <input type="text" placeholder={` конечная точка маршрута`} ref={endPoinRef} onChange={(e) => setSearchTerm(e.target.value)} /></h2>
-              </div>
+
               {/* строка поиска */}
               <SearchControl
                 state={`exli tut to tam malo)S`}
@@ -369,15 +365,19 @@ function MapYandex() {
                   }
                 }}
               />
-
             </Map>
-          } </div>
+          }
+        </div>
         <button onClick={() => addRoute(ymaps, map)}>Show route</button>
         {/* To destroy it, just unmount component */}
         <button onClick={() => setShow(!show)}>
           {show ? `Delete map` : `Show map`}
         </button>
       </YMaps>
+      <div>
+        <h2 className="Map__route">Определяем маршрут до:
+          <input type="text" placeholder={` конечная точка маршрута`} ref={endPoinRef} onChange={(e) => setSearchTerm(e.target.value)} /></h2>
+      </div>
     </div >
   );
 }
