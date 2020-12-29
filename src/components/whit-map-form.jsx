@@ -8,10 +8,8 @@ const WithMapForm = () => {
   return (
     <div className="map-list__element">
       <TownProvider>
-        <MapYandex
-        />
-        < AdFrom
-        />
+        <MapYandex/>
+        < AdFrom/>
       </TownProvider>
     </div>
   );

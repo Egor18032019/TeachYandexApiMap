@@ -11,7 +11,7 @@ import POINTS from './points';
 
 import data from './data.js';
 import cities from './cities.js';
-
+import useDebounce from './use-debounce.jsx';
 let interval = null;
 const error = `img/avatars/user02.png`;
 
@@ -36,20 +36,17 @@ function MapYandex() {
   const [clickRoute, setClickRoute] = useState(null);
   const [userRoute, setUserRoute] = useState(null);
   const [p, setP] = useState(null);
-
-
+  const [searchTerm, setSearchTerm] = useState(``);
+  const [results, setResults] = useState([]);
   const computed = useCallback(() => setTown(city), [city]);
   useEffect(() => {
-    console.log(`handleApiAvaliable0`);
+    console.log(`если карта изменилась`);
     _handleApiAvaliable(ymaps, map);
   }, [map]);
   useEffect(() => {
     console.log(`endPointRoute`);
     _handleApiAvaliable(ymaps, map);
   }, [endPointRoute]);
-  useEffect(() => {
-    setCity(town);
-  }, [town]);
   useEffect(() => {
     console.log(`handleApiAvaliable1`);
     _handleApiAvaliable(ymaps, map);
@@ -61,10 +58,17 @@ function MapYandex() {
       map.geoObjects.remove(clickRoute);
     }
   }, [city]);
+
   useEffect(() => {
+    console.log(`setCity`);
+    setCity(town);
+  }, [town]);
+  useEffect(() => {
+    console.log(`setState`);
     setState(mapState);
   }, [city]);
   useEffect(() => {
+    console.log(`computed`);
     computed(city);
   }, [city]);
   /**
@@ -85,7 +89,6 @@ function MapYandex() {
   useEffect(() => {
     console.log(` Я слежу за noFlash`);
   }, [noFlash]);
-
   useEffect(() => {
     console.log(`Я слежу жа flashing button`);
   }, [flash]);
@@ -129,7 +132,7 @@ function MapYandex() {
 
         )
         .then((newRoute) => {
-          mapInst.geoObjects.remove(defaultRoute);
+          // mapInst.geoObjects.remove(defaultRoute);
           setdefaultRoute(newRoute);
           const lengthRoute = Math.floor(newRoute.getLength() / 1000) + ` км`;
           setLength(lengthRoute);
@@ -170,10 +173,12 @@ function MapYandex() {
         });
     }
   };
-  const onChangeEndPoint = () => {
-    console.log(endPoinRef.current.value);
-    setEndPointRoute(endPoinRef.current.value);
-  };
+  const onChangeEndPoint = useDebounce(searchTerm, 1000);
+  useEffect(() => {
+    console.log(`onChangeEndPoint`);
+    setEndPointRoute(onChangeEndPoint);
+  }, [onChangeEndPoint]);
+
   return (
     <div className="Map">
       <YMaps
@@ -192,7 +197,7 @@ function MapYandex() {
               height={460}
               instanceRef={(ref) => {
                 if (map) {
-                  map.geoObjects.remove(defaultRoute);
+                  map.geoObjects.remove(defaultRoute); // при переключение города чтобы удалял маршурт из другого города
                 }
                 setMap(ref);
                 console.log(`instanceRef`);
@@ -209,11 +214,7 @@ function MapYandex() {
               }}
               modules={[`templateLayoutFactory`, `route`]}
             >
-              <div
-                open={false}>
-                <h2>Определяем маршрут до   <input type="text" placeholder={` например: ${endPointRoute}`} ref={endPoinRef} onChange={onChangeEndPoint} /></h2>
 
-              </div>
               {/* строка поиска */}
               <SearchControl
                 state={`exli tut to tam malo)S`}
@@ -364,15 +365,19 @@ function MapYandex() {
                   }
                 }}
               />
-
             </Map>
-          } </div>
+          }
+        </div>
         <button onClick={() => addRoute(ymaps, map)}>Show route</button>
         {/* To destroy it, just unmount component */}
         <button onClick={() => setShow(!show)}>
           {show ? `Delete map` : `Show map`}
         </button>
       </YMaps>
+      <div>
+        <h2 className="Map__route">Определяем маршрут до:
+          <input type="text" placeholder={` конечная точка маршрута`} ref={endPoinRef} onChange={(e) => setSearchTerm(e.target.value)} /></h2>
+      </div>
     </div >
   );
 }
